@@ -1,0 +1,31 @@
+# Agent Transaction Firewall — Policy Configuration
+# All wei values are strings to avoid JS integer overflow.
+
+# Maximum native ETH value that can be auto-approved (0.1 ETH on Base Sepolia).
+spendCeilingWei: "100000000000000000"
+
+riskScoreThresholds:
+  block: 80      # riskScore ≥ 80 → BLOCK
+  escalate: 50   # riskScore ≥ 50 → ESCALATE
+
+# Checksummed addresses always permitted as recipients.
+# Populate with your testnet addresses before running.
+allowlist:
+  - "0x0000000000000000000000000000000000000000"  # placeholder — replace me
+
+# Checksummed addresses always blocked regardless of risk score.
+denylist: []
+
+rules:
+  unlimitedApproval:
+    action: BLOCK             # uint256.max approval → always block
+
+  excessiveApproval:
+    thresholdWei: "1000000000000000000000"   # >1000 tokens (18 decimals)
+    action: ESCALATE
+
+  unknownRecipient:
+    action: ESCALATE          # recipient not in allowlist → human review
+
+  valueExceedsCeiling:
+    action: BLOCK             # native value > spendCeilingWei → block

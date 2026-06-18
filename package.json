@@ -1,0 +1,16 @@
+{
+  "name": "agent-tx-firewall",
+  "private": true,
+  "workspaces": [
+    "service",
+    "dashboard"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=service\" \"npm run dev --workspace=dashboard\"",
+    "build": "npm run build --workspace=service && npm run build --workspace=dashboard",
+    "typecheck": "npm run typecheck --workspace=service"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
