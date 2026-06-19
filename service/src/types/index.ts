@@ -106,8 +106,12 @@ export interface ClassifierOutput {
   riskScore: number;
   reasoning: string;
   category: RiskCategory;
-  /** Specific risk indicators the model identified. */
-  flags: string[];
+  /**
+   * LLM-identified risk signals beyond the deterministic rule checks.
+   * Named classifierSignals (not flags) to distinguish from RuleFlag[],
+   * which has different provenance and structure in the audit log.
+   */
+  classifierSignals: string[];
 }
 
 // ─── Policy output ───────────────────────────────────────────────────────────
@@ -129,9 +133,19 @@ export interface Decision {
   timestamp: string; // ISO 8601
   raw: RawTransaction;
   decoded: DecodedTransaction;
-  simulation: SimulationResult;
+  /**
+   * null when the Tenderly simulator threw before rules/ could run.
+   * The pipeline ESCALATEs immediately in that case — rules, classifier,
+   * and policy.evaluate() are all skipped.
+   */
+  simulation: SimulationResult | null;
   ruleFlags: RuleFlag[];
-  classification: ClassifierOutput;
+  /**
+   * null when the orchestrator short-circuited before calling the classifier
+   * due to a CRITICAL-severity rule flag (DENYLIST_ADDRESS, UNLIMITED_APPROVAL).
+   * CRITICAL verdicts must not depend on Claude API availability.
+   */
+  classification: ClassifierOutput | null;
   policy: PolicyDecision;
   // Populated only after a human acts on an ESCALATE item:
   humanVerdict: 'APPROVE' | 'REJECT' | null;
@@ -156,8 +170,9 @@ export interface AuditRecord {
   txType: TxType;
   /** Native value in wei as string (bigint → DB-safe). */
   valueWei: string;
-  riskScore: number;
-  riskCategory: RiskCategory;
+  /** null when classifier was skipped due to CRITICAL rule flag. */
+  riskScore: number | null;
+  riskCategory: RiskCategory | null;
   finalVerdict: PolicyVerdict;
   // Full JSON snapshots of each pipeline stage:
   decodedTxJson: string;
