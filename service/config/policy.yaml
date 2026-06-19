@@ -9,9 +9,15 @@ riskScoreThresholds:
   escalate: 50   # riskScore ≥ 50 → ESCALATE
 
 # Checksummed addresses always permitted as recipients.
-# Populate with your testnet addresses before running.
+# Add your agent's own wallet and any known counterparties here.
 allowlist:
-  - "0x0000000000000000000000000000000000000000"  # placeholder — replace me
+  # ── Base Sepolia DEX routers (verified from docs.uniswap.org) ────────────────
+  - "0x94cC0AaC535CCDB3C01d6787D6413C739ae12bc4"  # Uniswap V3 SwapRouter02
+  - "0x492E6456D9528771018DeB9E87ef7750EF184104"  # Uniswap UniversalRouter
+  - "0x000000000022D473030F116dDEE9F6B43aC78BA3"  # Permit2 (canonical, all chains)
+  # ── Smoke-test recipient (Hardhat/anvil account #1 — test wallets only) ────────
+  - "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  # ── Add agent wallet and counterparty addresses below ────────────────────────
 
 # Checksummed addresses always blocked regardless of risk score.
 denylist: []
@@ -22,10 +28,17 @@ rules:
 
   excessiveApproval:
     thresholdWei: "1000000000000000000000"   # >1000 tokens (18 decimals)
-    action: ESCALATE
+    action: ESCALATE          # catches near-max phishing values (UINT256_MAX-1, 2^255, etc.)
+
+  unknownTxType:
+    action: ESCALATE          # unrecognized calldata → human review, never auto-approve
+                              # also catches swap selectors not in the known set
 
   unknownRecipient:
     action: ESCALATE          # recipient not in allowlist → human review
 
   valueExceedsCeiling:
     action: BLOCK             # native value > spendCeilingWei → block
+
+  simulationReverted:
+    action: ESCALATE          # tx would revert → human review before signing
