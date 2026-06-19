@@ -7,7 +7,10 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "anvil:fork": "anvil --fork-url $BASE_SEPOLIA_RPC_URL --port ${ANVIL_FORK_PORT:-8545} --chain-id 84532"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
@@ -27,6 +30,7 @@
     "@types/node": "^22.13.4",
     "@types/uuid": "^10.0.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
   }
 }
