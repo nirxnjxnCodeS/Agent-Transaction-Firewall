@@ -10,6 +10,7 @@ const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
   'function approve(address spender, uint256 amount) returns (bool)',
   'function transferFrom(address from, address to, uint256 amount) returns (bool)',
+  'function increaseAllowance(address spender, uint256 addedValue) returns (bool)',
 ]);
 
 const ADDR = {
@@ -160,6 +161,42 @@ describe('ERC-20 approval', () => {
 
     expect(decoded.isUnlimitedApproval).toBe(false);
     // approvalAmount is preserved so rules/ can apply its own threshold
+    expect(decoded.approvalAmount).toBe(nearMax);
+  });
+});
+
+// ─── ERC-20 increaseAllowance ────────────────────────────────────────────────
+
+describe('ERC-20 increaseAllowance', () => {
+  it('increaseAllowance(uint256.max) → ERC20_APPROVAL, isUnlimitedApproval = true', async () => {
+    const data = encodeFunctionData({
+      abi: ERC20_ABI,
+      functionName: 'increaseAllowance',
+      args: [ADDR.spender, UINT256_MAX],
+    });
+    const decoded = await decode(base({ data }));
+
+    expect(decoded.txType).toBe('ERC20_APPROVAL');
+    expect(decoded.functionName).toBe('increaseAllowance');
+    expect(decoded.functionSelector).toBe('0x39509351');
+    expect(decoded.recipient).toBe(ADDR.spender);
+    expect(decoded.approvalAmount).toBe(UINT256_MAX);
+    expect(decoded.isUnlimitedApproval).toBe(true);
+    expect(decoded.amount).toBeNull();
+  });
+
+  it('increaseAllowance(2^255) → ERC20_APPROVAL, isUnlimitedApproval = false, approvalAmount preserved', async () => {
+    const nearMax = 2n ** 255n;
+    const data = encodeFunctionData({
+      abi: ERC20_ABI,
+      functionName: 'increaseAllowance',
+      args: [ADDR.spender, nearMax],
+    });
+    const decoded = await decode(base({ data }));
+
+    expect(decoded.txType).toBe('ERC20_APPROVAL');
+    expect(decoded.functionName).toBe('increaseAllowance');
+    expect(decoded.isUnlimitedApproval).toBe(false);
     expect(decoded.approvalAmount).toBe(nearMax);
   });
 });

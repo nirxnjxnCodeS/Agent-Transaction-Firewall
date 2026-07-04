@@ -6,14 +6,16 @@ export const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
   'function approve(address spender, uint256 amount) returns (bool)',
   'function transferFrom(address from, address to, uint256 amount) returns (bool)',
+  'function increaseAllowance(address spender, uint256 addedValue) returns (bool)',
 ]);
 
 // ─── Well-known 4-byte selectors ─────────────────────────────────────────────
 
 export const SELECTOR = {
-  ERC20_TRANSFER:      '0xa9059cbb' as const, // transfer(address,uint256)
-  ERC20_APPROVE:       '0x095ea7b3' as const, // approve(address,uint256)
-  ERC20_TRANSFER_FROM: '0x23b872dd' as const, // transferFrom(address,address,uint256)
+  ERC20_TRANSFER:           '0xa9059cbb' as const, // transfer(address,uint256)
+  ERC20_APPROVE:            '0x095ea7b3' as const, // approve(address,uint256)
+  ERC20_TRANSFER_FROM:      '0x23b872dd' as const, // transferFrom(address,address,uint256)
+  ERC20_INCREASE_ALLOWANCE: '0x39509351' as const, // increaseAllowance(address,uint256)
 } as const;
 
 /**

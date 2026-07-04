@@ -6,12 +6,13 @@ import { ERC20_ABI, SELECTOR, SWAP_SELECTORS, UINT256_MAX } from './selectors.js
  * Decode raw calldata into a normalized DecodedTransaction.
  *
  * Resolution order:
- *  1. Empty calldata          → NATIVE_TRANSFER
- *  2. Known swap selector     → SWAP
- *  3. ERC-20 transfer         → ERC20_TRANSFER
- *  4. ERC-20 transferFrom     → ERC20_TRANSFER
- *  5. ERC-20 approve          → ERC20_APPROVAL
- *  6. Anything else           → UNKNOWN
+ *  1. Empty calldata                  → NATIVE_TRANSFER
+ *  2. Known swap selector             → SWAP
+ *  3. ERC-20 transfer                 → ERC20_TRANSFER
+ *  4. ERC-20 transferFrom             → ERC20_TRANSFER
+ *  5. ERC-20 approve                  → ERC20_APPROVAL
+ *  6. ERC-20 increaseAllowance        → ERC20_APPROVAL (same shape, different functionName)
+ *  7. Anything else                   → UNKNOWN
  *
  * Never throws — unknown calldata yields txType UNKNOWN rather than an error.
  */
@@ -38,6 +39,10 @@ export async function decode(tx: RawTransaction): Promise<DecodedTransaction> {
 
   if (selector === SELECTOR.ERC20_APPROVE) {
     return decodeErc20Approve(tx, data, selector);
+  }
+
+  if (selector === SELECTOR.ERC20_INCREASE_ALLOWANCE) {
+    return decodeErc20IncreaseAllowance(tx, data, selector);
   }
 
   return unknown(tx, selector);
@@ -151,6 +156,30 @@ function decodeErc20Approve(
     // 2^255) used in phishing approvals are NOT flagged here — rules/ is
     // responsible for threshold-based "suspiciously large" detection using the
     // raw approvalAmount field directly.
+    isUnlimitedApproval: approvalAmount === UINT256_MAX,
+  };
+}
+
+function decodeErc20IncreaseAllowance(
+  tx: RawTransaction,
+  data: Hex,
+  selector: string,
+): DecodedTransaction {
+  const { args } = decodeFunctionData({ abi: ERC20_ABI, data });
+  // increaseAllowance(address spender, uint256 addedValue) — identical arg shape to approve
+  const [spender, approvalAmount] = args as [string, bigint];
+  return {
+    raw: tx,
+    txType: 'ERC20_APPROVAL',
+    functionSelector: selector,
+    functionName: 'increaseAllowance',
+    to: tx.to,
+    from: tx.from,
+    value: tx.value,
+    tokenAddress: tx.to,
+    recipient: spender,
+    amount: null,
+    approvalAmount,
     isUnlimitedApproval: approvalAmount === UINT256_MAX,
   };
 }
