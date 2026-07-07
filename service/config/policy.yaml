@@ -17,6 +17,8 @@ allowlist:
   - "0x000000000022D473030F116dDEE9F6B43aC78BA3"  # Permit2 (canonical, all chains)
   # ── Smoke-test recipient (Hardhat/anvil account #1 — test wallets only) ────────
   - "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+  # ── Balancer Vault (canonical across EVM chains) ─────────────────────────────
+  - "0xBA12222222228d8Ba445958a75a0704d566BF2C8"
   # ── Add agent wallet and counterparty addresses below ────────────────────────
 
 # Checksummed addresses always blocked regardless of risk score.
