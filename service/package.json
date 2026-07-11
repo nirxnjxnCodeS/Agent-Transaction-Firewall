@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "anvil:fork": "anvil --fork-url $BASE_SEPOLIA_RPC_URL --port ${ANVIL_FORK_PORT:-8545} --chain-id 84532"
+    "anvil:fork": "export $(cat .env | grep -v '#' | grep -v '^$' | xargs) && anvil --fork-url $BASE_SEPOLIA_RPC_URL --port ${ANVIL_FORK_PORT:-8545} --chain-id 84532",
+    "eval": "tsx --env-file=.env eval/runner.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",

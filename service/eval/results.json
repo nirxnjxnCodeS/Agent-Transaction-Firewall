@@ -1,0 +1,112 @@
+{
+  "runAt": "2026-07-13T10:27:19.404Z",
+  "totalCases": 100,
+  "passed": 98,
+  "failed": 2,
+  "errored": 0,
+  "passRate": 0.98,
+  "metrics": {
+    "byVerdict": {
+      "BLOCK": {
+        "precision": 1,
+        "recall": 1,
+        "fpr": 0
+      },
+      "ESCALATE": {
+        "precision": 0.83,
+        "recall": 1,
+        "fpr": 0.02
+      },
+      "APPROVE": {
+        "precision": 1,
+        "recall": 0.96,
+        "fpr": 0
+      }
+    },
+    "byPattern": {
+      "A": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "B": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "C": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "D": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "E": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "F": {
+        "total": 10,
+        "passed": 9,
+        "passRate": 0.9
+      },
+      "G": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "H": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      },
+      "I": {
+        "total": 10,
+        "passed": 9,
+        "passRate": 0.9
+      },
+      "J": {
+        "total": 10,
+        "passed": 10,
+        "passRate": 1
+      }
+    },
+    "classifierScoreDistribution": {
+      "benignApprove": {
+        "min": 5,
+        "max": 45,
+        "mean": 18.42,
+        "above50Count": 0,
+        "sampleSize": 48
+      }
+    }
+  },
+  "failures": [
+    {
+      "id": "F-008",
+      "description": "Transfer 1 WETH to Permit2 (allowlisted)",
+      "attackPattern": "benign-erc20-transfer",
+      "expected": "APPROVE",
+      "actual": "ESCALATE",
+      "riskScore": 62,
+      "primaryRuleFired": "RISK_SCORE_ESCALATE",
+      "pipelineStage": "policy"
+    },
+    {
+      "id": "I-008",
+      "description": "Transfer 0.08 WETH to Permit2 (allowlisted)",
+      "attackPattern": "benign-erc20-transfer-weth",
+      "expected": "APPROVE",
+      "actual": "ESCALATE",
+      "riskScore": 62,
+      "primaryRuleFired": "RISK_SCORE_ESCALATE",
+      "pipelineStage": "policy"
+    }
+  ],
+  "durationMs": 1045000,
+  "meanCaseDurationMs": 10450
+}
